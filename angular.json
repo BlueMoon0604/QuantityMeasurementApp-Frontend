@@ -24,8 +24,17 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": ["src/styles.css"],
+
+
+            "fileReplacements": [
+              {
+                "replace": "src/environments/enviroment.ts",
+                "with": "src/environments/environment.prod.ts"
+              }
+            ]
           },
+
           "configurations": {
             "production": {
               "budgets": [
@@ -50,6 +59,7 @@
           },
           "defaultConfiguration": "production"
         },
+
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
@@ -62,6 +72,7 @@
           },
           "defaultConfiguration": "development"
         },
+
         "test": {
           "builder": "@angular/build:unit-test"
         }
