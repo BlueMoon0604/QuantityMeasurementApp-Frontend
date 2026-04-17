@@ -19,7 +19,7 @@ import { BackendApiService } from '../../../core/services/backend-api.service';
 export class LoginComponent {
   loginForm: FormGroup;
   redirectTo = '/history';
-  oauthError = '';
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -32,12 +32,9 @@ export class LoginComponent {
       password: ['', [Validators.required]]
     });
 
+    const redirectParam = this.route.snapshot.queryParamMap.get('redirectTo');
     this.redirectTo =
-      this.route.snapshot.queryParamMap.get('redirectTo') || '/history';
-
-    if (this.route.snapshot.queryParamMap.get('error') === 'true') {
-      this.oauthError = 'Google login failed. Please try again.';
-    }
+      redirectParam && redirectParam.trim() ? redirectParam : '/history';
   }
 
   get email() {
@@ -49,33 +46,55 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { email, password } = this.loginForm.value;
-      this.backendApi.login({ email, password }).subscribe({
-        next: (response) => {
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userEmail', email);
-
-          if (response?.token) {
-            localStorage.setItem('authToken', response.token);
-          }
-
-          if (!localStorage.getItem('userName')) {
-            const derivedName = typeof email === 'string' ? email.split('@')[0] : 'User';
-            localStorage.setItem('userName', derivedName || 'User');
-          }
-
-          this.router.navigate([this.redirectTo]);
-        },
-        error: (error) => {
-          const message =
-            error?.error?.message || error?.error || 'Login failed. Please try again.';
-          alert(message);
-        }
-      });
-    } else {
+    if (this.loginForm.invalid || this.isLoading) {
       this.loginForm.markAllAsTouched();
+      return;
     }
+
+    this.isLoading = true;
+
+    const payload = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    };
+
+    this.backendApi.login(payload).subscribe({
+      next: (response) => {
+        if (response?.token) {
+          localStorage.setItem('authToken', response.token);
+        }
+
+        if (response?.email) {
+          localStorage.setItem('userEmail', response.email);
+        } else {
+          localStorage.setItem('userEmail', payload.email);
+        }
+
+        if (response?.name) {
+          localStorage.setItem('userName', response.name);
+        }
+
+        this.isLoading = false;
+
+        this.router.navigateByUrl(this.redirectTo || '/history', {
+          replaceUrl: true
+        });
+      },
+      error: (error) => {
+        this.isLoading = false;
+
+        console.error('Login full error:', error);
+        console.error('Login status:', error?.status);
+        console.error('Login body:', error?.error);
+
+        const message =
+          typeof error?.error === 'string'
+            ? error.error
+            : error?.error?.message || 'Login failed. Please try again.';
+
+        alert(message);
+      }
+    });
   }
 
   continueWithGoogle(): void {

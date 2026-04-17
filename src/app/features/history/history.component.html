@@ -14,8 +14,8 @@
 
     <div class="topbar-actions">
       <span class="user-greeting">Hi, {{ userName }} 👋</span>
-      <button class="ghost-btn" (click)="goBack()">Back</button>
-      <button class="logout-btn" (click)="logout()">Logout</button>
+      <button type="button" class="ghost-btn" (click)="goBack()">Back</button>
+      <button type="button" class="logout-btn" (click)="logout()">Logout</button>
     </div>
   </header>
 
@@ -44,8 +44,12 @@
     <section class="history-panel">
       <div class="filter-row">
         <div class="filter-card">
-          <label>Measurement Type</label>
-          <select [(ngModel)]="typeFilter" (change)="applyFilters()">
+          <label for="typeFilter">Measurement Type</label>
+          <select
+            id="typeFilter"
+            [(ngModel)]="typeFilter"
+            (change)="applyFilters()"
+          >
             <option value="all">All Measurement Types</option>
             <option value="length">Length</option>
             <option value="weight">Weight</option>
@@ -55,8 +59,12 @@
         </div>
 
         <div class="filter-card">
-          <label>Operation</label>
-          <select [(ngModel)]="operationFilter" (change)="applyFilters()">
+          <label for="operationFilter">Operation</label>
+          <select
+            id="operationFilter"
+            [(ngModel)]="operationFilter"
+            (change)="applyFilters()"
+          >
             <option value="all">All Operations</option>
             <option value="convert">Convert</option>
             <option value="compare">Compare</option>
@@ -66,10 +74,12 @@
             <option value="divide">Divide</option>
           </select>
         </div>
-
       </div>
 
-      <div class="history-list" *ngIf="filteredHistory.length > 0; else emptyState">
+      <div
+        class="history-list"
+        *ngIf="filteredHistory && filteredHistory.length > 0; else emptyState"
+      >
         <div class="history-item" *ngFor="let item of filteredHistory">
           <div class="history-top">
             <div class="tag-row">
@@ -80,8 +90,16 @@
           </div>
 
           <div class="history-body">
-            <p><strong>First:</strong> {{ item.firstValue }} {{ item.firstUnit | titlecase }}</p>
-            <p><strong>Second:</strong> {{ item.secondValue }} {{ item.secondUnit | titlecase }}</p>
+            <p>
+              <strong>First:</strong>
+              {{ item.firstValue }} {{ item.firstUnit | titlecase }}
+            </p>
+
+            <p>
+              <strong>Second:</strong>
+              {{ item.secondValue }} {{ item.secondUnit | titlecase }}
+            </p>
+
             <h3>{{ item.resultText }}</h3>
           </div>
         </div>

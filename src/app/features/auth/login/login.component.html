@@ -5,47 +5,60 @@
 
   <div class="auth-shell">
     <section class="auth-left">
-      <p class="badge">SECURE ACCESS</p>
       <h1>Welcome Back</h1>
       <p class="subtitle">
-        Login to continue and access your saved conversion history.
+        Login to continue your quantity measurement journey.
       </p>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" formControlName="email" placeholder="Enter your email" />
-          <small *ngIf="email?.touched && email?.hasError('required')">Email is required</small>
-          <small *ngIf="email?.touched && email?.hasError('email')">Enter a valid email</small>
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+          />
+          <small *ngIf="email?.touched && email?.invalid">
+            Please enter a valid email address.
+          </small>
         </div>
 
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" formControlName="password" placeholder="Enter your password" />
-          <small *ngIf="password?.touched && password?.hasError('required')">Password is required</small>
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+          />
+          <small *ngIf="password?.touched && password?.invalid">
+            Password is required.
+          </small>
         </div>
 
         <button type="submit" class="primary-btn">Login</button>
-        <button type="button" class="primary-btn" (click)="continueWithGoogle()">
-          Continue with Google
-        </button>
       </form>
 
-      <p class="switch-text" *ngIf="oauthError">{{ oauthError }}</p>
+      <button type="button" class="google-btn" (click)="continueWithGoogle()">
+        Continue with Google
+      </button>
 
       <p class="switch-text">
         Don’t have an account?
-        <a [routerLink]="['/signup']" [queryParams]="{ redirectTo: redirectTo }">Create one</a>
+        <a [routerLink]="['/signup']" [queryParams]="{ redirectTo: redirectTo }">
+          Signup
+        </a>
       </p>
     </section>
 
-    <section class="auth-right">
+    <aside class="auth-right">
       <div class="feature-card">
-        <h2>Track Every Conversion</h2>
+        <h2>Track Your Measurement Journey</h2>
         <p>
-          Save calculations, revisit previous results, and keep everything organized in one place.
+          Keep your conversions safe, revisit them anytime, and unlock a smoother workflow.
         </p>
       </div>
-    </section>
+    </aside>
   </div>
 </div>

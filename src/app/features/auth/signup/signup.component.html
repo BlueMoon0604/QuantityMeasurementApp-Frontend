@@ -5,53 +5,74 @@
 
   <div class="auth-shell">
     <section class="auth-left">
-      <p class="badge">CREATE ACCOUNT</p>
-      <h1>Sign Up</h1>
+      <h1>Create Account</h1>
       <p class="subtitle">
-        Create your account to save, view and manage your conversion history.
+        Start your quantity measurement journey with a secure account.
       </p>
 
-      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <form class="auth-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" formControlName="fullName" placeholder="Enter your full name" />
-          <small *ngIf="fullName?.touched && fullName?.hasError('required')">Name is required</small>
+          <label for="fullName">Full Name</label>
+          <input
+            id="fullName"
+            type="text"
+            formControlName="fullName"
+            placeholder="Enter your full name"
+          />
+          <small *ngIf="fullName?.touched && fullName?.invalid">
+            Full name is required.
+          </small>
         </div>
 
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" formControlName="email" placeholder="Enter your email" />
-          <small *ngIf="email?.touched && email?.hasError('required')">Email is required</small>
-          <small *ngIf="email?.touched && email?.hasError('email')">Enter a valid email</small>
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+          />
+          <small *ngIf="email?.touched && email?.invalid">
+            Please enter a valid email address.
+          </small>
         </div>
 
         <div class="form-group">
-          <label>Password</label>
-          <input type="password" formControlName="password" placeholder="Enter password" />
-          <small *ngIf="password?.touched && password?.hasError('required')">Password is required</small>
-          <small *ngIf="password?.touched && password?.hasError('minlength')">Minimum 6 characters required</small>
-          <small *ngIf="password?.touched && password?.hasError('pattern')">One special character required</small>
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+          />
+          <small *ngIf="password?.touched && password?.invalid">
+            Password must be at least 6 characters and include one special character.
+          </small>
         </div>
 
         <button type="submit" class="primary-btn">Create Account</button>
-        <button type="button" class="primary-btn" (click)="continueWithGoogle()">
-          Continue with Google
-        </button>
       </form>
+
+      <button type="button" class="google-btn" (click)="continueWithGoogle()">
+  <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" />
+  <span>Continue with Google</span>
+</button>
 
       <p class="switch-text">
         Already have an account?
-        <a [routerLink]="['/login']" [queryParams]="{ redirectTo: redirectTo }">Login</a>
+        <a [routerLink]="['/login']" [queryParams]="{ redirectTo: redirectTo }">
+          Login
+        </a>
       </p>
     </section>
 
-    <section class="auth-right">
+    <aside class="auth-right">
       <div class="feature-card">
-        <h2>Save Your Measurement Journey</h2>
+        <h2>Track Your Measurement Journey</h2>
         <p>
           Keep your conversions safe, revisit them anytime, and unlock a smoother workflow.
         </p>
       </div>
-    </section>
+    </aside>
   </div>
 </div>

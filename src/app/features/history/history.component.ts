@@ -13,6 +13,7 @@ interface HistoryItem {
   secondUnit: string;
   resultText: string;
   createdAt: string;
+  rawDate: number;
 }
 
 @Component({
@@ -40,6 +41,17 @@ export class HistoryComponent implements OnInit {
   ngOnInit(): void {
     this.userName = localStorage.getItem('userName') || 'User';
     this.userEmail = localStorage.getItem('userEmail') || '';
+
+    const token = localStorage.getItem('authToken');
+
+    if (!token || !this.userEmail) {
+      this.router.navigate(['/login'], {
+        queryParams: { redirectTo: '/history' },
+        replaceUrl: true
+      });
+      return;
+    }
+
     this.loadHistory();
   }
 
@@ -52,16 +64,26 @@ export class HistoryComponent implements OnInit {
 
     this.backendApi.getMyHistory(this.userEmail).subscribe({
       next: (response) => {
-        this.allHistory = response.map((item) => this.mapToHistoryItem(item));
+        const mapped: HistoryItem[] = response.map((item: any) =>
+          this.mapToHistoryItem(item)
+        );
+
+        this.allHistory = mapped.sort((a, b) => b.rawDate - a.rawDate);
         this.applyFilters();
       },
       error: (error) => {
         if (error?.status === 401) {
-          localStorage.removeItem('isLoggedIn');
           localStorage.removeItem('authToken');
-          this.router.navigate(['/login']);
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userName');
+
+          this.router.navigate(['/login'], {
+            queryParams: { redirectTo: '/history' },
+            replaceUrl: true
+          });
           return;
         }
+
         this.allHistory = [];
         this.filteredHistory = [];
       }
@@ -83,20 +105,26 @@ export class HistoryComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home'], { replaceUrl: true });
   }
 
   logout(): void {
-    localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('authToken');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
-    this.router.navigate(['/home']);
+
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   private mapToHistoryItem(item: any): HistoryItem {
-    const selectedType = String(item?.thisMeasurementType || '').toLowerCase() as HistoryItem['type'];
-    const operation = String(item?.operation || '').toLowerCase() as HistoryItem['operation'];
+    const selectedType = String(
+      item?.thisMeasurementType || item?.measurementType || ''
+    ).toLowerCase() as HistoryItem['type'];
+
+    const operation = String(
+      item?.operation || item?.operationType || ''
+    ).toLowerCase() as HistoryItem['operation'];
+
     const firstValue = Number(item?.thisValue ?? 0);
     const secondValue = Number(item?.thatValue ?? 0);
 
@@ -104,8 +132,10 @@ export class HistoryComponent implements OnInit {
     const secondUnit = this.mapUnitForUi(selectedType, String(item?.thatUnit || ''));
 
     let resultText = '';
+
     if (operation === 'compare') {
       const result = String(item?.resultString || '').toUpperCase();
+
       if (result === 'GREATER') {
         resultText = `${firstValue} ${firstUnit} is greater than ${secondValue} ${secondUnit}`;
       } else if (result === 'LESSER') {
@@ -125,6 +155,8 @@ export class HistoryComponent implements OnInit {
       resultText = `Result: ${Number(converted.toFixed(4))} ${firstUnit}`;
     }
 
+    const rawDate = this.parseRawDate(item?.createdAt);
+
     return {
       type: selectedType,
       operation,
@@ -133,21 +165,26 @@ export class HistoryComponent implements OnInit {
       secondValue,
       secondUnit,
       resultText,
-      createdAt: this.formatDate(item?.createdAt)
+      createdAt: this.formatDate(item?.createdAt),
+      rawDate
     };
   }
 
   private mapUnitForUi(type: HistoryItem['type'], unit: string): string {
     const upperUnit = unit.toUpperCase();
+
     if (type === 'length' && upperUnit === 'CENTIMETERS') {
       return 'centimeters';
     }
+
     if (type === 'weight' && upperUnit === 'GRAM') {
       return 'gram';
     }
+
     if (type === 'volume' && upperUnit === 'LITRE') {
       return 'litre';
     }
+
     return unit.toLowerCase();
   }
 
@@ -157,10 +194,22 @@ export class HistoryComponent implements OnInit {
     }
 
     const date = new Date(dateInput);
+
     if (Number.isNaN(date.getTime())) {
       return '';
     }
 
     return date.toLocaleString();
+  }
+
+  private parseRawDate(dateInput: string): number {
+    if (!dateInput) {
+      return 0;
+    }
+
+    const date = new Date(dateInput);
+    const time = date.getTime();
+
+    return Number.isNaN(time) ? 0 : time;
   }
 }

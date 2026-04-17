@@ -38,7 +38,7 @@ export class BackendApiService {
     return this.http.post(`${this.apiUrl}/user/api/auth/login`, payload);
   }
 
-  signup(payload: { name: string; email: string; password: string }): Observable<any> {
+  signup(payload: { name: string; email: string; password: string }): Observable<string> {
     return this.http.post(`${this.apiUrl}/user/api/auth/register`, payload, {
       responseType: 'text'
     });
@@ -169,6 +169,7 @@ export class BackendApiService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken');
+
     if (!token) {
       return new HttpHeaders();
     }

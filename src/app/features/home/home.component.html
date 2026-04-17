@@ -14,118 +14,130 @@
 
     <div class="topbar-actions">
       <span class="user-greeting" *ngIf="isLoggedIn">Hi, {{ userName }} 👋</span>
-      <button class="ghost-btn" (click)="goToHistory()">History</button>
-      <button class="ghost-btn" *ngIf="!isLoggedIn" (click)="goToLogin()">Login</button>
-      <button class="signup-btn" *ngIf="!isLoggedIn" (click)="goToSignup()">Signup</button>
-      <button class="logout-btn" *ngIf="isLoggedIn" (click)="logout()">Logout</button>
+      <button type="button" class="ghost-btn" (click)="goToHistory()">History</button>
+      <button
+        type="button"
+        class="logout-btn"
+        *ngIf="isLoggedIn"
+        (click)="logout()">
+        Logout
+      </button>
     </div>
   </header>
 
   <main class="home-content">
     <section class="hero-panel">
       <div class="hero-copy">
-        <p class="badge">SMART CONVERSION SPACE</p>
-        <h1>Welcome To Quantity Measurement</h1>
+        <p class="badge">QUANTITY WORKSPACE</p>
+        <h1>Smart Quantity Calculator</h1>
         <p class="hero-subtitle">
-          Convert, compare and perform arithmetic operations across multiple unit categories.
+          Select a measurement category, choose the operation you want to perform, enter your values, and get quick, reliable results for everyday quantity calculations.
         </p>
-      </div>
-
-      <div class="hero-stats">
-        <div class="stat-card">
-          <span>Categories</span>
-          <strong>4</strong>
-        </div>
-        <div class="stat-card">
-          <span>Operations</span>
-          <strong>{{ operationMap[selectedType].length }}</strong>
-        </div>
       </div>
     </section>
 
-    <section class="workspace">
-      <div class="left-panel">
-        <div class="panel-title">
-          <h3>Choose Type</h3>
-          <p>Select a category to begin</p>
+    <section class="workspace-shell">
+      <div class="workspace">
+        <!-- LEFT -->
+        <div class="left-panel">
+          <div class="selection-block">
+            <p class="selection-kicker">SETUP PANEL</p>
+            <h4>Choose category and operation</h4>
+            <p class="selection-helper">
+              Select what you want to measure first, then choose how you want to process it.
+            </p>
+          </div>
+
+          <div class="panel-title">
+            <h3>Choose Type</h3>
+          </div>
+
+          <div class="type-grid">
+            <button
+              class="type-card"
+              [class.active]="selectedType==='length'"
+              (click)="selectType('length')">
+              📏 Length
+            </button>
+
+            <button
+              class="type-card"
+              [class.active]="selectedType==='temperature'"
+              (click)="selectType('temperature')">
+              🌡️ Temperature
+            </button>
+
+            <button
+              class="type-card"
+              [class.active]="selectedType==='volume'"
+              (click)="selectType('volume')">
+              🧪 Volume
+            </button>
+
+            <button
+              class="type-card"
+              [class.active]="selectedType==='weight'"
+              (click)="selectType('weight')">
+              ⚖️ Weight
+            </button>
+          </div>
+
+          <div class="panel-title">
+            <h3>Choose Operation</h3>
+          </div>
+
+          <div class="operation-grid">
+            <button
+              *ngFor="let op of operationMap[selectedType]"
+              class="operation-btn"
+              [class.active]="selectedOperation===op"
+              (click)="selectOperation(op)">
+              {{ op | titlecase }}
+            </button>
+          </div>
         </div>
 
-        <div class="type-grid">
-          <button class="type-card" [class.active]="selectedType === 'length'" (click)="selectType('length')">
-            <span class="type-icon">📏</span>
-            <span class="type-name">Length</span>
-          </button>
+        <!-- RIGHT -->
+        <div class="right-panel">
+          <div class="panel-title">
+            <h3>Calculator</h3>
+          </div>
 
-          <button class="type-card" [class.active]="selectedType === 'temperature'" (click)="selectType('temperature')">
-            <span class="type-icon">🌡️</span>
-            <span class="type-name">Temperature</span>
-          </button>
-
-          <button class="type-card" [class.active]="selectedType === 'volume'" (click)="selectType('volume')">
-            <span class="type-icon">🧪</span>
-            <span class="type-name">Volume</span>
-          </button>
-
-          <button class="type-card" [class.active]="selectedType === 'weight'" (click)="selectType('weight')">
-            <span class="type-icon">⚖️</span>
-            <span class="type-name">Weight</span>
-          </button>
-        </div>
-
-        <div class="panel-title operation-title">
-          <h3>Choose Operation</h3>
-          <p *ngIf="selectedType !== 'temperature'; else tempOnly">
-            All arithmetic and comparison operations are available.
-          </p>
-          <ng-template #tempOnly>
-            <p>Temperature supports only convert and compare.</p>
-          </ng-template>
-        </div>
-
-        <div class="operation-grid">
-          <button
-            *ngFor="let op of operationMap[selectedType]"
-            class="operation-btn"
-            [class.active]="selectedOperation === op"
-            (click)="selectOperation(op)">
-            {{ op | titlecase }}
-          </button>
-        </div>
-      </div>
-
-      <div class="right-panel">
-        <div class="panel-title">
-          <h3>Calculator</h3>
-          <p>Enter values and units to get your result</p>
-        </div>
-
-        <div class="input-grid">
           <div class="input-card">
             <label>First Value</label>
-            <input type="number" [(ngModel)]="firstValue" (input)="onInputChange()" />
-            <select [(ngModel)]="firstUnit" (change)="onInputChange()">
-              <option *ngFor="let u of unitMap[selectedType]" [value]="u">{{ u }}</option>
-            </select>
+            <div class="input-row">
+              <input type="number" [(ngModel)]="firstValue">
+              <select [(ngModel)]="firstUnit">
+                <option *ngFor="let u of unitMap[selectedType]" [value]="u">
+                  {{u}}
+                </option>
+              </select>
+            </div>
           </div>
 
           <div class="input-card">
-            <label>{{ selectedOperation === 'convert' ? 'Convert To' : 'Second Value' }}</label>
-            <input
-              type="number"
-              [(ngModel)]="secondValue"
-              (input)="onInputChange()"
-              [readonly]="selectedOperation === 'convert'" />
-            <select [(ngModel)]="secondUnit" (change)="onInputChange()">
-              <option *ngFor="let u of unitMap[selectedType]" [value]="u">{{ u }}</option>
-            </select>
+            <label>Second Value</label>
+            <div class="input-row">
+              <input type="number" [(ngModel)]="secondValue">
+              <select [(ngModel)]="secondUnit">
+                <option *ngFor="let u of unitMap[selectedType]" [value]="u">
+                  {{u}}
+                </option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <button class="calculate-btn" (click)="performAction()">Calculate</button>
+          <button class="primary-btn calculate-btn" (click)="performAction()">
+            Calculate
+          </button>
 
-        <div class="result-box">
-          <p class="result-label">Output</p>
-          <h2>{{ resultText }}</h2>
+          <p class="temperature-note" *ngIf="selectedType === 'temperature'">
+            Note: For temperature, only <strong>Compare</strong> and <strong>Convert</strong> operations are supported.
+          </p>
+
+          <div class="result-box" *ngIf="resultText">
+            <h2>{{ resultText }}</h2>
+          </div>
         </div>
       </div>
     </section>
