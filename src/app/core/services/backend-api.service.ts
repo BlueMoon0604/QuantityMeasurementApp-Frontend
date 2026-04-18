@@ -30,7 +30,7 @@ interface UnitTransform {
 
 @Injectable({ providedIn: 'root' })
 export class BackendApiService {
-  private readonly apiUrl = environment.apiUrl;
+  private readonly apiUrl = environment.apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -54,6 +54,7 @@ export class BackendApiService {
       input.firstUnit,
       input.firstValue
     );
+
     const secondTransform = this.mapToBackendUnit(
       input.selectedType,
       input.secondUnit,
@@ -128,7 +129,10 @@ export class BackendApiService {
         fahrenheit: 'FAHRENHEIT',
         kelvin: 'KELVIN'
       };
-      return { backendUnit: tempMap[uiUnit], backendValue: uiValue };
+      return {
+        backendUnit: tempMap[uiUnit],
+        backendValue: uiValue
+      };
     }
 
     if (type === 'length') {
@@ -161,6 +165,7 @@ export class BackendApiService {
       litre: 1,
       gallon: 3.78541
     };
+
     return {
       backendUnit: 'LITRE',
       backendValue: uiValue * litresPerUnit[uiUnit]
